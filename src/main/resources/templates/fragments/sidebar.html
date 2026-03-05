@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="sidebar">
+<div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/assets">
+                    <i class="fas fa-laptop"></i> Assets
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/employees">
+                    <i class="fas fa-users"></i> Employees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/tickets">
+                    <i class="fas fa-ticket-alt"></i> Tickets
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/employee/dashboard">
+                    <i class="fas fa-briefcase"></i> My Assignments
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket #[${ticket.id}]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h4 th:text="'Ticket #' + ${ticket.id} + ' - ' + ${ticket.title}"></h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Status:</strong>
+                <span th:class="'badge ' + (${ticket.status} == 'OPEN' ? 'bg-danger' : 'bg-success')"
+                      th:text="${ticket.status}"></span>
+            </p>
+            <p><strong>Created By:</strong> <span th:text="${ticket.createdBy.fullName}"></span></p>
+            <p><strong>Description:</strong></p>
+            <div class="bg-white p-3 border rounded" th:text="${ticket.description}"></div>
+
+            <h5 class="mt-4">Attachments</h5>
+            <div th:each="att : ${ticket.attachments}">
+                <a th:href="@{${att.filePath}}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                    <i class="bi bi-paperclip"></i> <span th:text="${att.fileName}"></span>
+                </a>
+            </div>
+
+            <h5 class="mt-4">Comments</h5>
+            <div th:each="c : ${ticket.comments}" class="border-start border-primary ps-3 mb-3">
+                <small class="text-muted" th:text="${c.author.fullName} + ' - ' + ${#dates.format(c.createdAt, 'dd-MM-yyyy HH:mm')}"></small>
+                <p th:text="${c.content}"></p>
+            </div>
+
+            <form th:action="@{/tickets/{id}/comment(id=${ticket.id})}" method="post" class="mt-4">
+                <div class="mb-3">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Add a comment..." required></textarea>
+                </div>
+                <input type="hidden" name="employeeId" value="1"/> <!-- Change later with real login -->
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-3">
+        <a href="/tickets" class="btn btn-secondary">Back to Tickets</a>
+    </div>
+</div>
+</body>
+</html>

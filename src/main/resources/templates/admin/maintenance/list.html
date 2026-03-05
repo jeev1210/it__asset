@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Records • ITAMS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            padding-top: 68px;
+        }
+
+        .title-navbar {
+            height: 68px;
+            background: #0d6efd;
+            color: white;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1030;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+        }
+
+        .btn-add-small {
+            background: white;
+            color: #0d6efd;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-add-small:hover {
+            background: #f0f8ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        table thead th {
+            background-color: #000 !important;
+            color: white !important;
+            font-weight: 600;
+            font-size: 0.9rem !important;
+            padding: 0.6rem 0.75rem !important;
+            height: 44px !important;
+            border: none !important;
+        }
+
+        table tbody td {
+            padding: 0.7rem 0.75rem !important;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            font-size: 0.72rem !important;
+            padding: 0.25rem 0.55rem !important;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            padding: 0.3rem 0.55rem !important;
+            font-size: 0.82rem !important;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="title-navbar">
+    <div class="container-fluid d-flex justify-content-between align-items-center px-4 px-md-5">
+        <h1 class="page-title mb-0">Maintenance Records</h1>
+        <a href="/admin/maintenance/new" class="btn btn-add-small shadow-sm">+New Maintenance</a>
+    </div>
+</div>
+
+<div class="container-fluid px-4 px-md-5 py-4">
+
+    <div class="main-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Asset</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                    <th>Vendor</th>
+                    <th>Dates</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="m, iter : ${maintenances}" th:if="${maintenances != null && !maintenances.isEmpty()}">
+                    <td>
+                        <span class="badge bg-primary fw-bold" th:text="${iter.count}"></span>
+                    </td>
+
+                    <td>
+                        <!-- Replace assetName with brand + model -->
+                        <div class="fw-semibold"
+                             th:text="${(m.asset?.brand != null ? m.asset.brand : '') + ' ' + (m.asset?.model != null ? m.asset.model : '')}"></div>
+                        <small class="text-muted" th:text="${m.asset?.assetTag}"></small>
+                    </td>
+
+                    <td>
+                        <div style="max-width: 300px; word-wrap: break-word;"
+                             th:text="${m.issueDescription}"></div>
+                    </td>
+
+                    <td>
+                        <span class="status-badge text-white"
+                              th:classappend="${m.status.name() == 'PENDING' ? 'bg-warning text-dark' :
+                                               m.status.name() == 'IN_PROGRESS' ? 'bg-info' :
+                                               m.status.name() == 'COMPLETED' ? 'bg-success' :
+                                               'bg-danger'}"
+                              th:text="${m.status}"></span>
+                    </td>
+
+                    <td th:text="${m.vendor ?: '—'}"></td>
+
+                    <td>
+                        <small th:text="${#temporals.format(m.startDate, 'dd MMM yyyy')}"></small><br/>
+                        <small th:if="${m.endDate != null}" class="text-success"
+                               th:text="'Completed: ' + ${#temporals.format(m.endDate, 'dd MMM yyyy')}"></small>
+                    </td>
+
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <a th:href="@{'/admin/maintenance/edit/' + ${m.id}}"
+                               class="btn btn-warning action-btn me-1">Edit</a>
+                            <a th:href="@{'/admin/maintenance/delete/' + ${m.id}}"
+                               class="btn btn-danger action-btn"
+                               onclick="return confirm('Delete this maintenance record?')">
+                                Delete
+                            </a>
+
+                            <button type="button" class="btn btn-info action-btn ms-1"
+                                    onclick="notifyVendor(
+                                        '[[${(m.asset?.brand != null ? m.asset.brand : '') + ' ' + (m.asset?.model != null ? m.asset.model : '')}]]',
+                                        '[[${m.asset.assetTag}]]',
+                                        '[[${m.issueDescription}]]',
+                                        '[[${m.vendor}]]'
+                                    )">
+                                Notify Vendor
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${maintenances == null || maintenances.isEmpty()}">
+                    <td colspan="7" class="text-center py-5 bg-light">
+                        <div class="py-4">
+                            <i class="fas fa-tools fa-5x text-muted mb-4 opacity-50"></i>
+                            <h4 class="text-muted">No Maintenance Records</h4>
+                            <p class="text-muted lead">Start tracking asset repairs and servicing</p>
+                            <a href="/admin/maintenance/new" class="btn btn-primary px-4 mt-3">
+                                +Add First Record
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function notifyVendor(assetName, assetTag, issueDescription, vendor) {
+        if (!vendor) {
+            alert("Please select a vendor first!");
+            return;
+        }
+
+        const message = `Asset: ${assetName} (${assetTag})
+Issue: ${issueDescription}
+Request: Kindly perform a detailed diagnosis and proceed with the necessary repairs at the earliest.`;
+
+        const popup = window.open("", "Vendor Message", "width=500,height=400");
+        popup.document.write("<html><head><title>Notify Vendor</title></head><body>");
+        popup.document.write("<h4>Send this to vendor:</h4>");
+        popup.document.write(`<textarea style="width:100%;height:250px;">${message}</textarea>`);
+        popup.document.write("</body></html>");
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

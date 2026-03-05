@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket - ITAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 1. Lock the screen - No scrolling on the main page */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: #eef2f7; /* Light blue-grey background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 2. Navbar Settings */
+        .navbar-custom {
+            background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
+            height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        /* 3. The Main Layout Container */
+        .main-content {
+            /* Height = Total Screen - Navbar - Padding */
+            height: calc(100vh - 60px);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 4. The Big Ticket Card */
+        .ticket-card {
+            width: 100%;
+            height: 100%; /* Fill the container */
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Keep content inside rounded corners */
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 15px 25px;
+        }
+
+        .card-body {
+            padding: 25px;
+            background-color: #fff;
+            height: 100%;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        /* 5. Form Elements Styling */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        }
+
+        /* Make the Description Textarea fill vertical space */
+        .description-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .description-box {
+            flex-grow: 1; /* Expands to fill empty space */
+            resize: none;
+            font-size: 1.05rem;
+        }
+
+        /* Right column spacing */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        /* Custom file input styling */
+        .file-upload-box {
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .btn-lg-custom {
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark navbar-custom">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fs-4 fw-bold" href="#">
+            <i class="fas fa-headset me-2"></i>Employee Workspace <span class="fw-light fs-6 opacity-75">| Support Portal</span>
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <div class="d-flex align-items-center me-4">
+                <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width:32px; height:32px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span th:text="${fullName}" class="fw-semibold">Employee Name</span>
+            </div>
+            <a href="/auth/logout" class="btn btn-outline-light btn-sm px-3 rounded-pill">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Full Screen Content -->
+<div class="container-fluid main-content">
+
+    <div class="card ticket-card">
+        <!-- Header -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0 text-primary fw-bold">
+                <i class="fas fa-plus-circle me-2"></i>Create New Ticket
+            </h3>
+            <span class="badge bg-light text-secondary border p-2">
+                <i class="fas fa-clock me-1"></i> New Request
+            </span>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <form th:action="@{/employee/tickets/create}" method="post" enctype="multipart/form-data" class="needs-validation h-100" novalidate>
+                <input type="hidden" name="username" th:value="${username}" />
+
+                <div class="row h-100 g-4">
+
+                    <!-- LEFT COLUMN: Description (Takes up 60% of width) -->
+                    <div class="col-lg-7">
+                        <div class="description-wrapper">
+                            <label class="form-label fs-5">Detailed Description <span class="text-danger">*</span></label>
+                            <p class="text-muted small mb-2">Please provide as much detail as possible to help us resolve the issue faster.</p>
+                            <!-- This textarea will grow to fill the height -->
+                            <textarea name="description" class="form-control description-box shadow-sm"
+                                      placeholder="1. What happened?&#10;2. What were you doing when it happened?&#10;3. Any error messages?" required></textarea>
+                            <div class="invalid-feedback">Description is required.</div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Details & Actions (Takes up 40% of width) -->
+                    <div class="col-lg-5">
+                        <div class="right-panel">
+
+                            <!-- Top Section of Right Panel -->
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <label class="form-label">Ticket Subject <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" class="form-control form-control-lg fw-bold" placeholder="e.g. Printer Offline" required>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Priority Level</label>
+                                    <div class="row g-2">
+                                        <!-- Visual Radio Buttons for Priority -->
+                                        <div class="col-3">
+                                            <input type="radio" class="btn-check" name="priority" id="low" value="LOW">
+                                            <label class="btn btn-outline-success w-100" for="low">Low</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="radio" class="btn-check" name="priority" id="med" value="MEDIUM">
+                                            <label class="btn btn-outline-warning w-100" for="med">Med</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="radio" class="btn-check" name="priority" id="high" value="HIGH" checked>
+                                            <label class="btn btn-outline-danger w-100" for="high">High</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="radio" class="btn-check" name="priority" id="crit" value="CRITICAL">
+                                            <label class="btn btn-outline-dark w-100" for="crit">Critical</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Initial Note (Optional)</label>
+                                    <textarea name="initial_comment" class="form-control" rows="4" placeholder="Any specific error codes or quick notes..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Attachments</label>
+                                    <input type="file" name="attachments" class="form-control" multiple>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <span class="text-muted small">Supported: JPG, PDF, DOCX</span>
+                                        <span class="text-muted small">Max: 10MB</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Section: Buttons -->
+                            <div class="d-flex gap-3 pt-3 border-top mt-auto">
+                                <a href="/employee/my-tickets" class="btn btn-light btn-lg-custom flex-grow-1 border">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg-custom flex-grow-1 shadow">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Ticket
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Validation Script
+    (() => {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        forms.forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+</body>
+</html>

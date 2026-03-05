@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Support Tickets</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+
+        /* Blue fixed navbar */
+        .navbar-slim {
+            background-color: #0d6efd !important;
+            padding: 0.5rem 1.5rem;
+            min-height: 56px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+        }
+
+        .btn-new-ticket {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #fff !important;
+            padding: 0.45rem 1.3rem;
+            font-weight: 600;
+        }
+
+        .btn-new-ticket:hover { background-color: #e6e6e6 !important; }
+
+        .main {
+            padding-top: 90px;
+        }
+
+        /* CARD & TABLE – ZERO ROUNDED CORNERS ANYWHERE */
+        .card {
+            border-radius: 0 !important;
+            overflow: visible !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        /* BLACK HEADER – 100% SHARP, NO CURVES */
+        .table-custom thead {
+            background-color: #000 !important;
+        }
+
+        .table-custom thead th {
+            background-color: #000 !important;
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 0.65rem 0.9rem !important;
+            border: none !important;
+            height: 48px;
+            vertical-align: middle;
+            border-radius: 0 !important;   /* force sharp */
+        }
+
+        /* FINAL SAFETY – KILL ALL POSSIBLE ROUNDING */
+        .table-custom thead tr,
+        .table-custom thead th,
+        .table-custom thead th:first-child,
+        .table-custom thead th:last-child {
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        .table-custom thead {
+            border-bottom: 2px solid #333;
+        }
+
+        .table-custom tbody td {
+            padding: 0.55rem 0.9rem !important;
+            font-size: 0.94rem;
+            vertical-align: middle;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            white-space: nowrap;
+        }
+
+        .status-text  { font-weight: 600; color: #d63384; }
+        .priority-text { font-weight: 600; color: #fd7e14; }
+
+        .btn-sm {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-dark navbar-slim">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 fs-4 fw-bold">My Support Tickets</span>
+        <a href="/employee/tickets/create" class="btn btn-new-ticket">New Ticket</a>
+    </div>
+</nav>
+
+<main class="container-fluid px-4 main">
+
+    <!-- Success message after creating ticket -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-4">
+        Ticket created successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${tickets == null or #lists.isEmpty(tickets)}">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <strong>No tickets found</strong><br>
+                        <small>Click "New Ticket" to create one</small>
+                    </td>
+                </tr>
+
+                <tr th:each="ticket : ${tickets}">
+                    <td th:text="${ticket.id}">1</td>
+                    <td>
+                        <div class="fw-bold" th:text="${ticket.title}">Laptop not starting</div>
+                        <small class="text-muted" th:text="${#strings.abbreviate(ticket.description, 70)}">...</small>
+                    </td>
+                    <td class="status-text" th:text="${ticket.status}">OPEN</td>
+                    <td class="priority-text" th:text="${ticket.priority}">HIGH</td>
+                    <td th:text="${#temporals.format(ticket.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td>
+                        <a th:href="@{/employee/ticket/{id}(id=${ticket.id})}"
+                           class="btn btn-sm btn-primary">View</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

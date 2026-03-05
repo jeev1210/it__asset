@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket - ITAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Navbar */
+        .navbar-slim {
+            background-color: #0d6efd !important;
+            padding: 0.5rem 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+
+        /* Back / Cancel button */
+        .btn-back {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #fff !important;
+        }
+        .btn-back:hover {
+            background-color: #e6e6e6 !important;
+            color: #000 !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark navbar-slim sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold fs-4" href="/employee/dashboard">
+            <i class="fas fa-server me-2"></i>ITAMS
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text me-3">
+                <i class="fas fa-user-circle me-1"></i>
+                <span th:text="${fullName}">John Doe</span>
+            </span>
+            <a class="nav-link" href="/auth/logout">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- SIDEBAR -->
+        <div class="col-md-3">
+            <div class="list-group list-group-flush">
+                <a href="/employee/dashboard" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="/employee/my-tickets" class="list-group-item list-group-item-action">
+                    <i class="fas fa-ticket me-2"></i>My Tickets
+                </a>
+                <a href="/employee/my-assets" class="list-group-item list-group-item-action">
+                    <i class="fas fa-laptop me-2"></i>My Assets
+                </a>
+                <a href="/employee/my-assignments" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks me-2"></i>Assignments
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#profileModal">
+                    <i class="fas fa-user me-2"></i>👤 My Profile
+                </a>
+                <a href="/employee/tickets/create" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-plus-circle me-2"></i>Create Ticket
+                </a>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 fw-bold">
+                    <i class="fas fa-plus-circle me-2 text-success"></i>Create New Support Ticket
+                </h1>
+            </div>
+
+            <!-- SUCCESS MESSAGE -->
+            <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${message}">Ticket created successfully!</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- CREATE TICKET FORM -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Ticket Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/employee/tickets/create}" method="post" id="ticketForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- TITLE -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Ticket Title <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="title" id="title" placeholder="e.g., Laptop screen not working" required>
+                                    <div class="form-text">Briefly describe your issue</div>
+                                </div>
+
+                                <!-- DESCRIPTION -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Description <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="description" id="description" rows="5" placeholder="Describe your issue in detail..." required></textarea>
+                                    <div class="form-text">Provide as much detail as possible</div>
+                                </div>
+
+                                <!-- ASSET -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Related Asset</label>
+                                    <select class="form-select" name="assetId">
+                                        <option value="">Select an asset (optional)</option>
+                                        <option value="1">Dell Latitude 5420 (#LAP001)</option>
+                                        <option value="2">HP EliteBook 840 G8 (#LAP002)</option>
+                                        <option value="3">iPhone 14 Pro (#MOB001)</option>
+                                        <option value="4">Dell Monitor 27" (#MON001)</option>
+                                    </select>
+                                    <div class="form-text">Select the asset related to this issue</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- PRIORITY -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Priority <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="priority" id="priority" required>
+                                        <option value="LOW">Low</option>
+                                        <option value="MEDIUM" selected>Medium</option>
+                                        <option value="HIGH">High</option>
+                                        <option value="URGENT">Urgent</option>
+                                    </select>
+                                </div>
+
+                                <!-- CATEGORY -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="category" required>
+                                        <option value="HARDWARE">Hardware</option>
+                                        <option value="SOFTWARE" selected>Software</option>
+                                        <option value="NETWORK">Network</option>
+                                        <option value="ACCESS">Access/Password</option>
+                                        <option value="PRINTER">Printer</option>
+                                        <option value="MOBILE">Mobile Device</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+
+                                <!-- ATTACHMENTS -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Attachments</label>
+                                    <input type="file" class="form-control" name="attachments" multiple accept="image/*,.pdf,.doc,.docx">
+                                    <div class="form-text">Max 5 files, 10MB each</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- SUBMIT BUTTONS -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/employee/my-tickets" class="btn btn-back me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Create Ticket
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

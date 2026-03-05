@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Tickets - ITAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: none; border-radius: 15px; }
+        .table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .status-open { background: #dc3545 !important; color: white; }
+        .status-in-progress { background: #ffc107 !important; color: black; }
+        .status-resolved { background: #28a745 !important; color: white; }
+        .priority-high { background: #dc3545 !important; color: white; }
+        .priority-medium { background: #ffc107 !important; color: black; }
+        .priority-low { background: #28a745 !important; color: white; }
+    </style>
+</head>
+<body>
+<!-- ✅ HEADER -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-server me-2"></i> ITAMS
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/logout">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- ✅ SIDEBAR -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Quick Navigation</h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="/">🏠 Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/assets">💻 Assets</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/employees">👥 Employees</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/tickets">🎫 Tickets</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ MAIN CONTENT -->
+        <main class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-ticket-alt text-primary me-2"></i>
+                    Support Tickets
+                </h1>
+                <a href="/tickets/create" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create New Ticket
+                </a>
+            </div>
+
+            <!-- ✅ TICKETS TABLE -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>All Tickets
+                        <span class="badge bg-light text-dark ms-2" th:text="'(' + ${#lists.size(tickets)} + ')'">0</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${tickets == null or #lists.isEmpty(tickets)}" class="text-center py-5">
+                        <i class="fas fa-ticket-alt fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted">No Tickets Found</h4>
+                        <p class="text-muted">Get started by creating your first support ticket!</p>
+                        <a href="/tickets/create" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>Create First Ticket
+                        </a>
+                    </div>
+
+                    <div th:if="${tickets != null and !#lists.isEmpty(tickets)}">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th width="80">ID</th>
+                                    <th width="250">Title</th>
+                                    <th width="120">Created By</th>
+                                    <th width="100">Priority</th>
+                                    <th width="100">Status</th>
+                                    <th width="150">Created</th>
+                                    <th width="120">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="ticket : ${tickets}">
+                                    <td class="fw-bold" th:text="${ticket.id}">1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                            <div>
+                                                <a th:href="@{/tickets/{id}(id=${ticket.id})}"
+                                                   th:text="${ticket.title}"
+                                                   class="text-decoration-none fw-semibold">
+                                                    Sample Ticket
+                                                </a>
+                                                <small class="d-block text-muted" th:text="${ticket.description}">Description</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                                <span class="badge bg-primary"
+                                                      th:text="${ticket.createdBy.fullName ?: ticket.createdBy}">John Doe</span>
+                                    </td>
+                                    <td>
+                                        <!-- ✅ FIXED STATUS BADGES - SIMPLE SYNTAX! -->
+                                        <span th:classappend=" 'badge priority-high' "
+                                              th:if="${ticket.priority == 'HIGH'}">HIGH</span>
+                                        <span th:classappend=" 'badge priority-medium' "
+                                              th:if="${ticket.priority == 'MEDIUM'}">MEDIUM</span>
+                                        <span th:classappend=" 'badge priority-low' "
+                                              th:if="${ticket.priority == 'LOW'}">LOW</span>
+                                    </td>
+                                    <td>
+                                        <!-- ✅ FIXED STATUS BADGES - CORRECT SYNTAX! -->
+                                        <span class="badge status-open" th:if="${ticket.status == 'OPEN'}">OPEN</span>
+                                        <span class="badge status-in-progress" th:if="${ticket.status == 'IN_PROGRESS'}">IN PROGRESS</span>
+                                        <span class="badge status-resolved" th:if="${ticket.status == 'RESOLVED'}">RESOLVED</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted"
+                                               th:text="${#temporals.format(ticket.createdAt, 'MMM dd, yyyy')}">Nov 27, 2025</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/tickets/{id}(id=${ticket.id})}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success">Assign</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ STATISTICS CARDS -->
+            <div class="row mt-4" th:if="${tickets != null and !#lists.isEmpty(tickets)}">
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(#lists.filter(tickets, t -> t.status == 'OPEN'))}">2</h4>
+                            <small>Open Tickets</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(#lists.filter(tickets, t -> t.status == 'IN_PROGRESS'))}">1</h4>
+                            <small>In Progress</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(#lists.filter(tickets, t -> t.status == 'RESOLVED'))}">1</h4>
+                            <small>Resolved</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-ticket-alt fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(tickets)}">4</h4>
+                            <small>Total Tickets</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

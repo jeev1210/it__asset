@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard • ITAMS</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.6.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0a58ca;
+            --light-blue: #e7f3ff;
+            --feedback: #9c27b0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            /* REVERTED TO OLD COLOR (Blue) */
+            background-color: var(--primary) !important;
+            height: 70px;
+            box-shadow: 0 4px 20px rgba(13,110,253,0.3);
+            z-index: 1030;
+        }
+
+        /* SPECIFIC RULE: Asset Portal Text is BLACK */
+        .navbar-brand {
+            color: black !important;
+            font-weight: 700; /* Made slightly bolder for better visibility on blue */
+        }
+
+        /* OTHER NAV ITEMS REMAIN WHITE */
+        .navbar-text, .nav-link, .btn-outline-light {
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        /* --- WHITE SIDEBAR --- */
+        .sidebar {
+            background-color: white;
+            border-right: 1px solid #e9ecef;
+            height: calc(100vh - 70px);
+            position: sticky;
+            top: 70px;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.04);
+            padding-top: 1.5rem !important;
+        }
+
+        /* Sidebar List Items */
+        .list-group-item {
+            border: none;
+            padding: 14px 24px;
+            margin: 4px 12px;
+            border-radius: 12px;
+            color: #495057;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .list-group-item i {
+            min-width: 28px;
+            color: #6c757d;
+        }
+
+        /* Hover Effect */
+        .list-group-item:hover {
+            background-color: var(--light-blue);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .list-group-item:hover i {
+            color: var(--primary);
+        }
+
+        /* Active State */
+        .list-group-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white !important;
+            box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+            font-weight: 800;
+        }
+
+        .list-group-item.active i {
+            color: white !important;
+        }
+
+        /* --- GENERAL STATS & CARDS --- */
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container-fluid px-4">
+        <!-- Asset Portal Link (Will be BLACK due to CSS above) -->
+        <a class="navbar-brand fs-4" href="/employee/dashboard">
+            <i class="fas fa-server me-2"></i>Employee Workspace
+        </a>
+
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target=".sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-4 ms-auto">
+            <!-- User Name (Remains WHITE) -->
+            <span class="navbar-text d-none d-md-block">
+                <i class="fas fa-user-circle me-2"></i>
+                <span th:text="${fullName}">John Doe</span>
+            </span>
+            <a href="/auth/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="list-group list-group-flush">
+                    <a href="/employee/dashboard" class="list-group-item active">
+                        <i class="fas fa-tachometer-alt me-3"></i>Dashboard
+                    </a>
+                    <a href="/employee/my-tickets" class="list-group-item">
+                        <i class="fas fa-ticket me-3"></i>My Tickets
+                    </a>
+                    <a href="/employee/my-assets" class="list-group-item">
+                        <i class="fas fa-laptop me-3"></i>My Assets
+                    </a>
+                    <a href="/employee/my-assignments" class="list-group-item">
+                        <i class="fas fa-tasks me-3"></i>Assignments
+                    </a>
+                    <a href="#" class="list-group-item" data-bs-toggle="modal" data-bs-target="#profileModal">
+                        <i class="fas fa-user me-3" style="color:#6f42c1"></i>My Profile
+                    </a>
+                    <a href="/employee/tickets/create" class="list-group-item">
+                        <i class="fas fa-plus-circle me-3"></i>Create Ticket
+                    </a>
+                    <a href="/employee/feedback/create" class="list-group-item">
+                        <i class="fas fa-comment-medical me-3" style="color:var(--feedback)"></i>Give Feedback
+                    </a>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 py-4">
+
+            <h1 class="h3 fw-bold text-primary mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h1>
+
+            <!-- STATS CARDS -->
+            <div class="row g-4 mb-5">
+                <!-- Open Tickets -->
+                <div class="col-md-6">
+                    <div class="card stat-card text-white bg-primary shadow-sm h-100 text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-ticket fa-3x mb-3 opacity-75"></i>
+                            <h2 class="display-5 fw-bold" th:text="${openTickets != null ? openTickets : 0}">0</h2>
+                            <p class="mb-0 fw-semibold">Open Tickets</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Assigned Assets -->
+                <div class="col-md-6">
+                    <div class="card stat-card text-white bg-success shadow-sm h-100 text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-laptop fa-3x mb-3 opacity-75"></i>
+                            <h2 class="display-5 fw-bold" th:text="${assignedAssets != null ? assignedAssets : 0}">0</h2>
+                            <p class="mb-0 fw-semibold">Assigned Assets</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4 col-md-6">
+                    <a href="/employee/tickets/create" class="card h-100 text-decoration-none text-dark shadow-sm border-0">
+                        <div class="card-body text-center p-5">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="fas fa-plus-circle fa-2x text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-3">Create New Ticket</h5>
+                            <p class="text-muted">Report IT issues or request support</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <a href="/employee/my-tickets" class="card h-100 text-decoration-none text-dark shadow-sm border-0">
+                        <div class="card-body text-center p-5">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="fas fa-ticket fa-2x text-success"></i>
+                            </div>
+                            <h5 class="fw-bold mb-3">View My Tickets</h5>
+                            <p class="text-muted">Track your support requests</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <a href="/employee/my-assets" class="card h-100 text-decoration-none text-dark shadow-sm border-0">
+                        <div class="card-body text-center p-5">
+                            <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="fas fa-laptop fa-2x text-info"></i>
+                            </div>
+                            <h5 class="fw-bold mb-3">My Assets</h5>
+                            <p class="text-muted">View assigned devices</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MY FEEDBACK SECTION -->
+            <div class="row mt-5">
+                <div class="col-lg-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fas fa-comment-medical me-2"></i>My Feedback
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${feedbacks != null and !#lists.isEmpty(feedbacks)}">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-bottom"
+                                        style="font-weight: 500 !important;"
+                                        th:each="fb : ${feedbacks}">
+                                        <div>
+                                            <strong class="text-warning" th:text="${fb.rating} + '/5'">5/5</strong>
+                                            <span class="ms-2 text-dark" th:text="${fb.message}">Great service!</span>
+                                        </div>
+                                        <small class="text-muted"
+                                               th:text="${#temporals.format(fb.submittedAt, 'dd MMM yyyy HH:mm')}">
+                                            04 Dec 2025 01:36
+                                        </small>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div th:if="${feedbacks == null or #lists.isEmpty(feedbacks)}">
+                                <p class="text-muted mb-4">You haven't submitted any feedback yet.</p>
+                                <a href="/employee/feedback/create" class="btn btn-primary">
+                                    <i class="fas fa-comment-medical me-2"></i>Give Feedback
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="profileModalLabel">
+                    <i class="fas fa-user me-2"></i>My Profile
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- VIEW MODE -->
+                <div id="profileView">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                            <h4 class="fw-bold" th:text="${fullName}">John Doe</h4>
+                            <p class="text-muted">Employee</p>
+                            <span class="badge bg-primary fs-6" th:text="'#EMP' + ${profile.id}">#EMP001</span>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-primary"><i class="fas fa-envelope me-2"></i>Email</h6>
+                                            <p class="mb-0 fw-semibold" th:text="${username}">john@example.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-success"><i class="fas fa-building me-2"></i>Department</h6>
+                                            <p class="mb-0 fw-semibold" th:text="${department}">IT</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-info"><i class="fas fa-phone me-2"></i>Phone</h6>
+                                            <p class="mb-0 fw-semibold"
+                                               th:text="${profile != null && profile.phone != null ? profile.phone : '-'}">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-warning"><i class="fas fa-calendar me-2"></i>Joined</h6>
+                                            <p class="mb-0 fw-semibold"
+                                               th:text="${profile != null && profile.createdAt != null ? #temporals.format(profile.createdAt,'dd MMM yyyy') : '-'}">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDIT MODE -->
+                <div id="editForm" style="display: none;">
+                    <form id="profileUpdateForm" th:action="@{/employee/profile/update}" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="fullName" th:value="${profile.fullName}" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" th:value="${profile.phone}">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-primary" id="editProfileBtn">
+                    <i class="fas fa-edit me-1"></i>Edit Profile
+                </button>
+                <button type="submit" class="btn btn-success d-none" id="saveProfileBtn" form="profileUpdateForm">
+                    <i class="fas fa-save me-1"></i>Save Changes
+                </button>
+                <button type="button" class="btn btn-secondary d-none" id="cancelEditBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById('editProfileBtn');
+        const saveBtn = document.getElementById('saveProfileBtn');
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        const viewSection = document.getElementById('profileView');
+        const editSection = document.getElementById('editForm');
+
+        editBtn.addEventListener('click', () => {
+            viewSection.style.display = 'none';
+            editSection.style.display = 'block';
+            editBtn.classList.add('d-none');
+            saveBtn.classList.remove('d-none');
+            cancelBtn.classList.remove('d-none');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            viewSection.style.display = 'block';
+            editSection.style.display = 'none';
+            editBtn.classList.remove('d-none');
+            saveBtn.classList.add('d-none');
+            cancelBtn.classList.add('d-none');
+        });
+    });
+</script>
+</body>
+</html>

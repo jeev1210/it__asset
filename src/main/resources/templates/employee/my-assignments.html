@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Assignments</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+
+        .navbar-slim {
+            background-color: #0d6efd !important;
+            padding: 0.5rem 1.5rem;
+            min-height: 56px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+        }
+
+        .btn-back {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #fff !important;
+            padding: 0.45rem 1.3rem;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background-color: #e6e6e6 !important;
+        }
+
+        .main {
+            padding-top: 90px;
+        }
+
+        /* COMPLETELY SHARP BLACK HEADER - NO ROUNDED CORNERS AT ALL */
+        .table-custom thead {
+            background-color: #000 !important;
+        }
+
+        .table-custom thead th {
+            background-color: #000 !important;
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 0.65rem 0.9rem !important;
+            border: none !important;
+            height: 48px;
+            vertical-align: middle;
+
+            /* Force sharp corners - override everything */
+            border-radius: 0 !important;
+        }
+
+        /* Remove all rounding from the thead row and cells
+        .table-custom thead tr,
+        .table-custom thead tr th {
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        /* Make sure the card itself doesn't add rounding to the top */
+        .card {
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        .table-custom tbody td {
+            padding: 0.55rem 0.9rem !important;
+            font-size: 0.94rem;
+            vertical-align: middle;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            white-space: nowrap;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark navbar-slim">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 fs-4 fw-bold">My Assignments</span>
+        <a href="/employee/dashboard" class="btn btn-back">Back</a>
+    </div>
+</nav>
+
+<main class="container-fluid px-4 main">
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
+                <tr>
+                    <th>Asset Name</th>
+                    <th>Asset Tag</th>
+                    <th>Assigned Date</th>
+                    <th>Returned Date</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="assignment : ${assignments}">
+                    <td class="fw-semibold" th:text="${assignment.asset.assetTag}"></td>
+
+                    <td th:text="${assignment.asset.assetTag}"></td>
+                    <td th:text="${assignment.assignedAt != null ? #temporals.format(assignment.assignedAt, 'dd-MM-yyyy') : '-'}"></td>
+                    <td th:text="${assignment.returnedAt != null ? #temporals.format(assignment.returnedAt, 'dd-MM-yyyy') : '-'}"></td>
+                    <td class="status-text" th:text="${assignment.returned ? 'Returned' : 'Active'}"></td>
+                </tr>
+
+                <tr th:if="${assignments == null or #lists.isEmpty(assignments)}">
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <strong>No assignments found</strong><br>
+                        <small>Your asset assignments will appear here</small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
